@@ -1,0 +1,3 @@
+#![feature(main)]
+
+mod main;
