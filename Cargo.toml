@@ -11,6 +11,7 @@ name = "main"
 path = "src/mod.rs"
 
 [dependencies]
+argparse = "*"
 clippy = "*"
 env_logger= "*"
 image = "*"
