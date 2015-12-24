@@ -38,14 +38,66 @@
 // }
 
 use std;
+use env_logger;
 use image;
-use image::ImageDecoder;
+use image::{GenericImage, ImageDecoder};
+
+use pixel;
+use resize;
+use vec2d;
+
+fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
+  let mut data = data.clone();
+
+  let shrink_amount = 1;
+  for i in 1 .. shrink_amount + 1 {
+    data = resize::decrement_width(&data);
+    debug!("Decremented width {}", i);
+  }
+
+  data
+}
+
+fn load_input() -> image::ImageResult<vec2d::T<pixel::T>> {
+  let input = std::io::stdin();
+  let decoder = image::jpeg::JPEGDecoder::new(input);
+  let image = try!(image::decoder_to_image(decoder));
+
+  let (w, h) = image.dimensions();
+  info!("Image is {} by {}", w, h);
+
+  let mut data = vec2d::new(w as usize, h as usize, pixel::empty());
+
+  for x in 0..w {
+  for y in 0..h {
+    *data.get_mut(x as usize, y as usize) = image.get_pixel(x, y);
+  }}
+
+  Ok(data)
+}
+
+fn output(data: &vec2d::T<pixel::T>) -> std::io::Result<()> {
+  let mut image = image::DynamicImage::new_rgba8(data.width as u32, data.height as u32);
+
+  for x in 0 .. data.width {
+  for y in 0 .. data.height {
+    image.put_pixel(x as u32, y as u32, *data.get(x, y));
+  }}
+
+  let as_vec = image.raw_pixels();
+
+  let mut output = std::io::stdout();
+  let mut img_encoder = image::jpeg::JPEGEncoder::new(&mut output);
+  try!(img_encoder.encode(&as_vec, data.width as u32, data.height as u32, image.color()));
+
+  Ok(())
+}
 
 #[main]
 fn main() {
-  let input = std::io::stdin();
-  let mut img_decoder = image::jpeg::JPEGDecoder::new(input);
+  env_logger::init().unwrap();
 
-  let (w, h) = img_decoder.dimensions().unwrap();
-  println!("Image is {} by {}", w, h);
+  let data = load_input().unwrap();
+  let data = resize(&data);
+  output(&data).unwrap();
 }
