@@ -51,7 +51,7 @@ fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
 
   let shrink_amount = 1;
   for i in 1 .. shrink_amount + 1 {
-    data = resize::decrement_width(&data);
+    data = resize::highlight_y_paths(&data);
     debug!("Decremented width {}", i);
   }
 
