@@ -14,7 +14,9 @@ path = "src/mod.rs"
 argparse = "*"
 clippy = "*"
 env_logger= "*"
-image = "*"
 log = "*"
 num = "*"
 time = "*"
+
+[dependencies.image]
+git = "https://github.com/bfops/image"

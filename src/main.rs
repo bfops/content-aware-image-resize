@@ -61,8 +61,7 @@ fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
 
 fn load_input() -> image::ImageResult<vec2d::T<pixel::T>> {
   let input = std::io::stdin();
-  let decoder = image::jpeg::JPEGDecoder::new(input);
-  let image = try!(image::decoder_to_image(decoder));
+  let image = try!(image::load_jpeg(input));
 
   let (w, h) = image.dimensions();
   info!("Image is {} by {}", w, h);
