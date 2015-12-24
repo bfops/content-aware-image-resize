@@ -74,7 +74,7 @@ pub fn decrement_width(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
     (0 .. paths.width)
     .min_by_key(|&x| *paths.get(x, paths.height - 1))
     .unwrap();
-  for y in (0 .. paths.height - 2).rev() {
+  for y in (0 .. paths.height - 1).rev() {
     let ancestor = *path.get(0, y + 1) as isize;
     let x =
       [ancestor - 1, ancestor, ancestor + 1].iter()
