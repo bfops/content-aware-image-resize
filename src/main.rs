@@ -49,10 +49,11 @@ use vec2d;
 fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
   let mut data = data.clone();
 
-  let shrink_amount = 1;
-  for i in 1 .. shrink_amount + 1 {
-    data = resize::highlight_y_paths(&data);
-    debug!("Decremented width {}", i);
+  let shrink_amount = data.width / 4;
+  let iters = shrink_amount + 1;
+  for i in 1 .. iters {
+    data = resize::decrement_width(&data);
+    debug!("Iteration {}/{} done", i, iters);
   }
 
   data
@@ -97,7 +98,10 @@ fn output(data: &vec2d::T<pixel::T>) -> std::io::Result<()> {
 fn main() {
   env_logger::init().unwrap();
 
+  info!("Loading input..");
   let data = load_input().unwrap();
+  info!("Performing operations..");
   let data = resize(&data);
+  info!("Writing output..");
   output(&data).unwrap();
 }
