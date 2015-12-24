@@ -50,10 +50,9 @@ fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
   let mut data = data.clone();
 
   let shrink_amount = data.width / 4;
-  let iters = shrink_amount + 1;
-  for i in 1 .. iters {
+  for i in 1 .. shrink_amount + 1 {
     data = resize::decrement_width(&data);
-    debug!("Iteration {}/{} done", i, iters);
+    debug!("Iteration {}/{} done", i, shrink_amount);
   }
 
   data

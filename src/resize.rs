@@ -53,7 +53,7 @@ fn y_paths(energy: &vec2d::T<u32>) -> vec2d::T<u32> {
       if x > 0 {
         min_ancestor = std::cmp::min(min_ancestor, *paths.get(x - 1, y - 1));
       }
-      if x < energy.width - 1 {
+      if x < paths.width - 1 {
         min_ancestor = std::cmp::min(min_ancestor, *paths.get(x + 1, y - 1));
       }
 
@@ -69,23 +69,23 @@ pub fn decrement_width(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
 
   let paths = y_paths(&energy);
 
-  let mut path = vec2d::new(1, energy.height, 0);
-  *path.get_mut(0, energy.height - 1) =
-    (0..energy.width)
-    .min_by_key(|&x| *paths.get(x, energy.height - 1))
+  let mut path = vec2d::new(1, paths.height, 0);
+  *path.get_mut(0, paths.height - 1) =
+    (0 .. paths.width)
+    .min_by_key(|&x| *paths.get(x, paths.height - 1))
     .unwrap();
-  for y in (0 .. energy.height - 2).rev() {
+  for y in (0 .. paths.height - 2).rev() {
     let ancestor = *path.get(0, y + 1) as isize;
-    let (x, _path_energy) =
+    let x =
       [ancestor - 1, ancestor, ancestor + 1].iter()
         .filter_map(|&x| {
           if x < 0 || x >= data.width as isize {
             None
           } else {
-            Some((x as usize, paths.get(x as usize, y)))
+            Some(x as usize)
           }
         })
-        .min_by_key(|&(_x, path_energy)| path_energy)
+        .min_by_key(|&x| *paths.get(x, y))
         .unwrap();
     *path.get_mut(0, y) = x;
   }
