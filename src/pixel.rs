@@ -7,11 +7,6 @@ pub fn empty() -> T {
   image::Rgba { data: [0; 4] }
 }
 
-#[test]
-fn assert_mem_layout() {
-  assert!(std::mem::size_of::<T>() == std::mem::size_of::<u8>());
-}
-
 pub fn diff(t1: T, t2: T) -> u32 {
   assert!(t1.data[3] == t2.data[3]);
   let r =
