@@ -4,6 +4,7 @@ mod args {
 
   pub struct T {
     pub target_width: size::T,
+    pub target_height: size::T,
   }
 
   /// Parse the command-line arguments
@@ -11,6 +12,7 @@ mod args {
     let mut t =
       T {
         target_width:  size::Absolute(0),
+        target_height:  size::Absolute(0),
       };
 
     {
@@ -22,6 +24,14 @@ mod args {
           &["-w", "--width"],
           argparse::Store,
           "Target width of the image",
+        )
+        .required();
+      args.refer(&mut t.target_height)
+        .required()
+        .add_option(
+          &["-h", "--height"],
+          argparse::Store,
+          "Target height of the image",
         )
         .required();
 
@@ -88,16 +98,32 @@ fn main() {
   info!("Performing operations..");
   let mut data = data.clone();
 
-  let shrink_amount =
-    match args.target_width {
-      size::Absolute(w) => data.width as u32 - w,
-      size::Relative(ratio) => (data.width as f32 * (1.0 - ratio)) as u32,
-    };
-  let shrink_amount = std::cmp::max(shrink_amount, 0);
-  let shrink_amount = std::cmp::min(shrink_amount, data.width as u32);
-  for i in 1 .. shrink_amount + 1 {
-    data = resize::decrement_width(&data);
-    debug!("Iteration {}/{} done", i, shrink_amount);
+  {
+    let shrink_amount =
+      match args.target_width {
+        size::Absolute(w) => data.width as u32 - w,
+        size::Relative(ratio) => (data.width as f32 * (1.0 - ratio)) as u32,
+      };
+    let shrink_amount = std::cmp::max(shrink_amount, 0);
+    let shrink_amount = std::cmp::min(shrink_amount, data.width as u32);
+    for i in 1 .. shrink_amount + 1 {
+      data = resize::decrement_width(&data);
+      debug!("Width iteration {}/{} done", i, shrink_amount);
+    }
+  }
+
+  {
+    let shrink_amount =
+      match args.target_height {
+        size::Absolute(w) => data.height as u32 - w,
+        size::Relative(ratio) => (data.height as f32 * (1.0 - ratio)) as u32,
+      };
+    let shrink_amount = std::cmp::max(shrink_amount, 0);
+    let shrink_amount = std::cmp::min(shrink_amount, data.height as u32);
+    for i in 1 .. shrink_amount + 1 {
+      data = resize::decrement_height(&data);
+      debug!("Height iteration {}/{} done", i, shrink_amount);
+    }
   }
 
   info!("Writing output..");
