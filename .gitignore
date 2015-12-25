@@ -15,4 +15,4 @@
 *.exe
 *-test
 /doc/
-/target/
+target/
