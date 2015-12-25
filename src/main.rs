@@ -1,41 +1,36 @@
-// mod args {
-//   use argparse;
-// 
-//   pub struct T {
-//     pub target_width: u32,
-//     pub target_height: u32,
-//   }
-// 
-//   /// Parse the command-line arguments
-//   pub fn parse_or_exit() -> T {
-//     let mut t =
-//       T {
-//         target_width:  0,
-//         target_height: 0,
-//       };
-// 
-//     {
-//       let mut args = argparse::ArgumentParser::new();
-//       args.set_description("Content-aware image resizer");
-//       args.refer(&mut t.target_width)
-//         .add_option(
-//           &["-w", "-width"],
-//           argparse::Store,
-//           "Target width of the image",
-//         );
-//       args.refer(&mut t.target_height)
-//         .add_option(
-//           &["-h", "-height"],
-//           argparse::Store,
-//           "Target height of the image",
-//         );
-// 
-//       args.parse_args_or_exit();
-//     }
-// 
-//     t
-//   }
-// }
+mod args {
+  use argparse;
+  use size;
+
+  pub struct T {
+    pub target_width: size::T,
+  }
+
+  /// Parse the command-line arguments
+  pub fn parse_or_exit() -> T {
+    let mut t =
+      T {
+        target_width:  size::Absolute(0),
+      };
+
+    {
+      let mut args = argparse::ArgumentParser::new();
+      args.set_description("Content-aware image resizer");
+      args.refer(&mut t.target_width)
+        .required()
+        .add_option(
+          &["-w", "--width"],
+          argparse::Store,
+          "Target width of the image",
+        )
+        .required();
+
+      args.parse_args_or_exit();
+    }
+
+    t
+  }
+}
 
 use std;
 use env_logger;
@@ -44,19 +39,8 @@ use image::{GenericImage, ImageDecoder};
 
 use pixel;
 use resize;
+use size;
 use vec2d;
-
-fn resize(data: &vec2d::T<pixel::T>) -> vec2d::T<pixel::T> {
-  let mut data = data.clone();
-
-  let shrink_amount = data.width / 4;
-  for i in 1 .. shrink_amount + 1 {
-    data = resize::decrement_width(&data);
-    debug!("Iteration {}/{} done", i, shrink_amount);
-  }
-
-  data
-}
 
 fn load_input() -> image::ImageResult<vec2d::T<pixel::T>> {
   let input = std::io::stdin();
@@ -96,10 +80,26 @@ fn output(data: &vec2d::T<pixel::T>) -> std::io::Result<()> {
 fn main() {
   env_logger::init().unwrap();
 
+  let args = args::parse_or_exit();
+
   info!("Loading input..");
   let data = load_input().unwrap();
+
   info!("Performing operations..");
-  let data = resize(&data);
+  let mut data = data.clone();
+
+  let shrink_amount =
+    match args.target_width {
+      size::Absolute(w) => data.width as u32 - w,
+      size::Relative(ratio) => (data.width as f32 * (1.0 - ratio)) as u32,
+    };
+  let shrink_amount = std::cmp::max(shrink_amount, 0);
+  let shrink_amount = std::cmp::min(shrink_amount, data.width as u32);
+  for i in 1 .. shrink_amount + 1 {
+    data = resize::decrement_width(&data);
+    debug!("Iteration {}/{} done", i, shrink_amount);
+  }
+
   info!("Writing output..");
   output(&data).unwrap();
 }
