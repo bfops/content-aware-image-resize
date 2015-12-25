@@ -1,0 +1,23 @@
+[package]
+
+name = "content-aware-image-resize-bin"
+version = "0.0.0"
+authors = [
+  "Zeke Foppa <benjamin.foppa@gmail.com>",
+]
+
+[[bin]]
+name = "main"
+path = "mod.rs"
+
+[dependencies]
+argparse = "*"
+clippy = "*"
+env_logger= "*"
+log = "*"
+
+[dependencies.image]
+git = "https://github.com/bfops/image"
+
+[dependencies.content-aware-image-resize]
+path = "../lib"

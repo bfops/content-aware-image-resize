@@ -1,0 +1,15 @@
+[package]
+
+name = "content-aware-image-resize"
+version = "0.0.0"
+authors = [
+  "Zeke Foppa <benjamin.foppa@gmail.com>",
+]
+
+[lib]
+path = "mod.rs"
+
+[dependencies]
+clippy = "*"
+log = "*"
+num = "*"

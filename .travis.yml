@@ -2,4 +2,6 @@ language: rust
 rust: nightly
 sudo: false
 
-script: cargo build && cargo test
+script: 
+  - (cd lib && cargo test)
+  - (cd bin && cargo build)
